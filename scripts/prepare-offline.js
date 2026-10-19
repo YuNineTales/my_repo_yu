@@ -2,13 +2,14 @@
 
 // [인터넷 되는 PC에서 실행] 폐쇄망 반입용 Electron zip 과 SHASUMS256.txt 를 offline/ 에 내려받는다.
 // 사용법: node scripts/prepare-offline.js [--platform=win32,linux] [--arch=x64,arm64]
+//   인자가 없으면 package.json 의 config.offlineTarget (기본 win32-x64) 을 받는다.
 // 사내 미러가 있으면: ELECTRON_MIRROR=https://mirror.example.local/electron/ node scripts/prepare-offline.js
 //   (미러 URL 형식: <MIRROR>v<버전>/electron-v<버전>-<플랫폼>-<아키텍처>.zip)
 
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { OFFLINE_DIR, electronVersion, zipName, parseArgs } = require('./lib/electron-paths');
+const { OFFLINE_DIR, readPackageJson, electronVersion, zipName, parseArgs } = require('./lib/electron-paths');
 
 const DEFAULT_MIRROR = 'https://github.com/electron/electron/releases/download/';
 
@@ -30,8 +31,9 @@ function expectedHash(sums, name) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const version = electronVersion();
-  const platforms = String(args.platform || process.platform).split(',');
-  const arches = String(args.arch || process.arch).split(',');
+  const [defaultPlatform, defaultArch] = (readPackageJson().config.offlineTarget || 'win32-x64').split('-');
+  const platforms = String(args.platform || defaultPlatform).split(',');
+  const arches = String(args.arch || defaultArch).split(',');
   let mirror = process.env.ELECTRON_MIRROR || DEFAULT_MIRROR;
   if (!mirror.endsWith('/')) mirror += '/';
 

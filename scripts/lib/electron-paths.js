@@ -47,8 +47,9 @@ function parseArgs(argv) {
   const args = {};
   for (const raw of argv) {
     if (!raw.startsWith('--')) continue;
-    const [key, value] = raw.slice(2).split('=');
-    args[key] = value === undefined ? true : value;
+    const eq = raw.indexOf('=');
+    if (eq === -1) args[raw.slice(2)] = true;
+    else args[raw.slice(2, eq)] = raw.slice(eq + 1);
   }
   return args;
 }

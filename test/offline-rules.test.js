@@ -35,3 +35,15 @@ test('renderer HTML 은 외부 URL 리소스를 참조하지 않는다', () => {
   const html = fs.readFileSync(path.join(ROOT, 'src/renderer/index.html'), 'utf8');
   assert.doesNotMatch(html, /(src|href)\s*=\s*["']https?:\/\//i);
 });
+
+test('.bat / .cmd 파일은 ASCII 만 쓴다 (cmd.exe 코드 페이지 문제 방지)', () => {
+  const files = [
+    ...fs.readdirSync(ROOT).filter((f) => /\.(bat|cmd)$/i.test(f)).map((f) => path.join(ROOT, f)),
+    ...fs.readdirSync(path.join(ROOT, 'scripts', 'win')).map((f) => path.join(ROOT, 'scripts', 'win', f)),
+  ];
+  assert.ok(files.length > 0);
+  for (const file of files) {
+    const buf = fs.readFileSync(file);
+    assert.ok(buf.every((b) => b < 0x80), `${path.relative(ROOT, file)} 에 ASCII 가 아닌 문자가 있음`);
+  }
+});

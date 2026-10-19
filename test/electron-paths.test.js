@@ -29,4 +29,5 @@ test('플랫폼별 실행 파일/리소스 경로', () => {
 
 test('인자 파싱', () => {
   assert.deepEqual(parseArgs(['--arch=arm64', '--skip-checksum', 'x']), { arch: 'arm64', 'skip-checksum': true });
+  assert.deepEqual(parseArgs(['--zip=C:\\a=b\\x.zip']), { zip: 'C:\\a=b\\x.zip' });
 });

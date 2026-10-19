@@ -7,7 +7,8 @@
   "private": true,
   "license": "UNLICENSED",
   "config": {
-    "electronVersion": "44.9.0"
+    "electronVersion": "44.9.0",
+    "offlineTarget": "win32-x64"
   },
   "engines": {
     "node": ">=18"

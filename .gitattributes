@@ -1,0 +1,7 @@
+# 기본은 LF. Windows 배치 파일만 CRLF (cmd.exe 는 LF 배치 파일에서 레이블/goto 가 깨질 수 있다).
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.zip binary
+*.png binary
+*.ico binary
