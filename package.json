@@ -1,0 +1,28 @@
+{
+  "name": "electron-offline-starter",
+  "productName": "Electron Offline Starter",
+  "version": "0.1.0",
+  "description": "폐쇄망(오프라인)에서 npm 없이 개발·실행·패키징 가능한 Electron 기본 구성",
+  "main": "src/main/main.js",
+  "private": true,
+  "license": "UNLICENSED",
+  "config": {
+    "electronVersion": "44.9.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node scripts/run.js",
+    "dev": "node scripts/run.js --dev",
+    "smoke": "node scripts/run.js --smoke",
+    "check": "node scripts/check.js",
+    "test": "node --test",
+    "verify": "node scripts/check.js && node --test",
+    "setup": "node scripts/install-offline.js",
+    "package": "node scripts/package.js",
+    "prepare-offline": "node scripts/prepare-offline.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
