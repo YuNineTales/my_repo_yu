@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- 폐쇄망: 외부 리소스(CDN, 폰트, 스크립트)를 쓰지 않는다. 모든 리소스는 로컬 파일. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'"
+    />
+    <title>Electron Offline Starter</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Electron Offline Starter</h1>
+      <p class="muted">폐쇄망에서 npm 없이 동작하는 기본 구성</p>
+
+      <section>
+        <h2>앱 정보</h2>
+        <dl id="app-info"></dl>
+      </section>
+
+      <section>
+        <h2>설정 저장 예제</h2>
+        <form id="note-form">
+          <input id="note-input" type="text" placeholder="메모를 입력하고 저장" autocomplete="off" />
+          <button type="submit">저장</button>
+        </form>
+        <p>저장된 메모: <span id="note-saved" class="muted">(없음)</span></p>
+      </section>
+    </main>
+    <script src="renderer.js"></script>
+  </body>
+</html>
