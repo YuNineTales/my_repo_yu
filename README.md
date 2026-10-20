@@ -35,23 +35,24 @@
 
 ## 빠른 시작 (Windows)
 
-### 1) 인터넷 PC 에서 (한 번만): Electron 받기
+### 1) 인터넷 PC 에서 (한 번만): Electron 파일 2개 받기
 
-```bat
-node scripts\prepare-offline.js
+브라우저로 아래 링크를 누르면 바로 받아진다. (파일 이름은 바꾸지 않는다)
+
+- https://github.com/electron/electron/releases/download/v44.9.0/electron-v44.9.0-win32-x64.zip (약 120MB)
+- https://github.com/electron/electron/releases/download/v44.9.0/SHASUMS256.txt
+
+인터넷 PC 에 Node 가 있으면 저장소 폴더에서 `node scripts\prepare-offline.js` 한 줄로 받아도 된다 (체크섬 확인 + `offline\` 저장까지 자동).
+자세한 내용(ARM64 PC, 체크섬 수동 확인, 반입 시 주의점)은 [폐쇄망 반입 파일](#폐쇄망-반입-파일) 참고.
+
+### 2) 프로젝트 폴더 + 받은 파일을 폐쇄망 PC 로 옮기기
+
+받은 두 파일은 프로젝트의 `offline\` 폴더에 넣는다:
+
 ```
-
-기본값으로 **Windows x64** 용 파일을 받는다 (`package.json` → `config.offlineTarget`).
-
-```
-offline\electron-v44.9.0-win32-x64.zip   (약 120MB)
+offline\electron-v44.9.0-win32-x64.zip
 offline\SHASUMS256.txt
 ```
-
-인터넷 PC 에 Node 가 없으면 브라우저로 직접 받아도 된다:
-https://github.com/electron/electron/releases/tag/v44.9.0 → `electron-v44.9.0-win32-x64.zip`, `SHASUMS256.txt`
-
-### 2) 프로젝트 폴더 전체(`offline\` 포함)를 폐쇄망 PC 로 복사
 
 ### 3) 폐쇄망 PC 에서 (더블클릭 또는 cmd 에서 실행)
 
@@ -406,14 +407,69 @@ dist\electron-offline-starter-win32-x64.zip
 
 ## 폐쇄망 반입 파일
 
-| 파일 | 받는 곳 | 폐쇄망 PC 위치 |
+인터넷 되는 PC 에서 받아서 폐쇄망 PC 의 `offline\` 폴더에 넣는다. git 에는 올라가지 않는다 (용량이 커서 `.gitignore` 처리).
+
+### 받을 파일
+
+| 파일 | 직접 다운로드 링크 | 크기 |
 | --- | --- | --- |
-| `electron-v44.9.0-win32-x64.zip` | `prepare-offline.js` 또는 GitHub Releases | `offline\` |
-| `SHASUMS256.txt` | 같은 곳 (권장, 체크섬 검증용) | `offline\` |
+| `electron-v44.9.0-win32-x64.zip` | https://github.com/electron/electron/releases/download/v44.9.0/electron-v44.9.0-win32-x64.zip | 약 120MB |
+| `SHASUMS256.txt` | https://github.com/electron/electron/releases/download/v44.9.0/SHASUMS256.txt | 수 KB |
 
-(폐쇄망 PC 에 Node 24.16.0 이 이미 있으므로 Node 설치 파일은 필요 없다.)
+- 공식 릴리스 페이지: https://github.com/electron/electron/releases/tag/v44.9.0 (아래쪽 **Assets** 를 펼치면 같은 파일이 있다)
+- **파일 이름을 바꾸지 않는다.** `setup.bat` 이 이 이름으로 찾는다.
+- 폐쇄망 PC 에 Node 24.16.0 이 이미 있으므로 Node 설치 파일은 필요 없다.
 
-사내 미러(Nexus/Artifactory 의 raw/GitHub 프록시)에 Electron 이 있다면 인터넷 PC 없이 받을 수도 있다:
+### 폐쇄망 PC 에 넣는 위치
+
+```
+<프로젝트 폴더>\
+└── offline\
+    ├── electron-v44.9.0-win32-x64.zip
+    └── SHASUMS256.txt
+```
+
+그다음 `setup.bat` 실행 → 체크섬 검증과 압축 해제를 자동으로 한다.
+
+### PC 아키텍처 확인 (x64 / ARM64)
+
+폐쇄망 PC 의 cmd 에서:
+
+```bat
+echo %PROCESSOR_ARCHITECTURE%
+```
+
+| 결과 | 받을 파일 |
+| --- | --- |
+| `AMD64` (대부분) | `electron-v44.9.0-win32-x64.zip` |
+| `ARM64` | `electron-v44.9.0-win32-arm64.zip` (링크의 `x64` 를 `arm64` 로 바꿔서 받는다) |
+
+### 반입 시 주의
+
+- USB / 망연계 시스템으로 옮길 때, zip 안에 `electron.exe` 가 있어서 **실행 파일 반입 검사에 걸릴 수 있다.** 회사 반입 승인 절차를 따른다.
+- 백신이 `electron.exe` 를 격리하면 보안 담당자에게 예외 등록을 요청한다 ([문제 해결](#문제-해결) 참고).
+
+### 체크섬 수동 확인 (선택)
+
+`setup.bat` 이 자동으로 확인하지만, 반입 직후 직접 확인하려면:
+
+```bat
+certutil -hashfile offline\electron-v44.9.0-win32-x64.zip SHA256
+```
+
+출력된 값이 `SHASUMS256.txt` 의 `electron-v44.9.0-win32-x64.zip` 줄 앞의 값과 같으면 정상이다 (대소문자 무시).
+
+### 다른 방법
+
+**인터넷 PC 에 Node 가 있을 때** (저장소 폴더에서):
+
+```bat
+node scripts\prepare-offline.js
+```
+
+두 파일을 받고 체크섬까지 확인해서 `offline\` 에 넣어 준다. 기본 대상은 `package.json` 의 `config.offlineTarget` (= `win32-x64`). ARM64 는 `--arch=arm64`.
+
+**사내 미러(Nexus/Artifactory 의 raw/GitHub 프록시)에 Electron 이 있을 때**는 인터넷 PC 없이 받을 수도 있다. 미러가 있는지, 주소가 뭔지는 사내 담당자에게 확인한다:
 
 ```bat
 set ELECTRON_MIRROR=https://nexus.example.local/repository/electron/
