@@ -8,7 +8,8 @@
 | 대상 환경 | 폐쇄망 Windows 10/11 x64 |
 | Electron | **44.9.0** (`package.json` → `config.electronVersion`, 내장 Node 24.x) |
 | Node.js (폐쇄망 PC) | 24.16.0 설치됨 (없어도 동작: Electron 내장 Node 로 대체) |
-| npm (폐쇄망 PC) | 11.13.0 설치됨. **이 프로젝트는 npm install 이 필요 없다** |
+| npm (폐쇄망 PC) | 11.13.0 설치됨. 사내 저장소에서 패키지 메타데이터는 조회되지만 Electron 바이너리는 막혀 있음. **이 프로젝트는 npm install 이 필요 없다** |
+| Electron 받는 법 | (A) 인터넷 PC 에서 받아 반입 또는 (B) 사내 프록시/미러로 폐쇄망 PC 에서 직접 받기 (`download.bat`) |
 | 외부 의존성 | 없음 (`dependencies`, `devDependencies` 비어 있음) |
 
 > **이 문서를 읽는 로컬 LLM(AI 코딩 도우미)에게**
@@ -28,14 +29,27 @@
 6. [작업 레시피](#작업-레시피)
 7. [패키징 (배포본 만들기)](#패키징-배포본-만들기)
 8. [폐쇄망 반입 파일](#폐쇄망-반입-파일)
-9. [사내 npm 저장소에 대해](#사내-npm-저장소에-대해)
-10. [문제 해결](#문제-해결)
+9. [사내 프록시 / 미러로 직접 받기](#사내-프록시--미러로-직접-받기)
+10. [사내 npm 저장소에 대해](#사내-npm-저장소에-대해)
+11. [문제 해결](#문제-해결)
 
 ---
 
 ## 빠른 시작 (Windows)
 
-### 1) 인터넷 PC 에서 (한 번만): Electron 파일 2개 받기
+Electron 런타임(약 120MB)을 받는 방법이 두 가지다. 사내 프록시를 쓸 수 있으면 **방법 B** 가 편하다.
+
+### 방법 B: 사내 프록시 / 미러로 폐쇄망 PC 에서 바로 받기
+
+1. `local-env.example.bat` 을 복사해서 `local-env.bat` 을 만들고, 사내 프록시 또는 미러 주소를 적는다.
+2. `download.bat` 실행 → 다운로드 + 체크섬 확인 + 설치까지 한 번에 끝난다.
+3. 아래 [3) 폐쇄망 PC 에서](#3-폐쇄망-pc-에서-더블클릭-또는-cmd-에서-실행) 의 `start.bat` / `verify.bat` 으로 넘어간다.
+
+자세한 설정은 [사내 프록시 / 미러로 직접 받기](#사내-프록시--미러로-직접-받기) 참고.
+
+### 방법 A: 인터넷 PC 에서 받아서 반입
+
+#### 1) 인터넷 PC 에서 (한 번만): Electron 파일 2개 받기
 
 브라우저로 아래 링크를 누르면 바로 받아진다. (파일 이름은 바꾸지 않는다)
 
@@ -45,7 +59,7 @@
 인터넷 PC 에 Node 가 있으면 저장소 폴더에서 `node scripts\prepare-offline.js` 한 줄로 받아도 된다 (체크섬 확인 + `offline\` 저장까지 자동).
 자세한 내용(ARM64 PC, 체크섬 수동 확인, 반입 시 주의점)은 [폐쇄망 반입 파일](#폐쇄망-반입-파일) 참고.
 
-### 2) 프로젝트 폴더 + 받은 파일을 폐쇄망 PC 로 옮기기
+#### 2) 프로젝트 폴더 + 받은 파일을 폐쇄망 PC 로 옮기기
 
 받은 두 파일은 프로젝트의 `offline\` 폴더에 넣는다:
 
@@ -58,7 +72,8 @@ offline\SHASUMS256.txt
 
 | 순서 | 파일 | 하는 일 |
 | --- | --- | --- |
-| 1 | `setup.bat` | zip 체크섬 검증 → `vendor\electron\` 에 압축 해제 (처음 한 번) |
+| 1 | `setup.bat` | (방법 A) zip 체크섬 검증 → `vendor\electron\` 에 압축 해제 (처음 한 번) |
+| 1 | `download.bat` | (방법 B) 사내 프록시/미러로 받기 + `setup` 까지 (처음 한 번) |
 | 2 | `start.bat` | 앱 실행 |
 | - | `dev.bat` | DevTools 열고 실행 |
 | - | `verify.bat` | 정적 검사 + 단위 테스트 + 실제 실행 확인 |
@@ -84,7 +99,8 @@ npm start
 
 - OS: **Windows** (cmd / PowerShell). 셸 명령은 Windows 문법으로 쓴다. `rm -rf`, `cp`, `export` 같은 bash 문법은 쓰지 않는다.
 - 인터넷 없음. Node 24.16.0, npm 11.13.0 설치됨.
-- 사내 npm 저장소가 있을 수 있지만 **어떤 패키지가 있는지 알 수 없다** → 패키지를 추가하지 않는다.
+- 사내 npm 저장소가 있다. 패키지 메타데이터는 조회되지만 바이너리 다운로드(Electron 등)는 막혀 있고, **어떤 패키지를 쓸 수 있는지 보장되지 않는다** → 패키지를 추가하지 않는다.
+- Electron 런타임은 `vendor\electron\` 에 이미 설치돼 있다고 가정한다. 없으면 사용자에게 `download.bat` 또는 `setup.bat` 실행을 안내한다 (LLM 이 직접 다운로드하지 않는다).
 
 ### 절대 금지
 
@@ -96,6 +112,7 @@ npm start
 6. **렌더러에 `ipcRenderer` 를 통째로 노출하지 않는다.** `contextBridge` 로 기능별 함수만 노출한다.
 7. **`preload.js` 에서 로컬 파일(`../main/...` 등)을 require 하지 않는다.** sandbox preload 는 `require('electron')` 만 된다.
 8. **`.bat` / `.cmd` 파일에 한글을 쓰지 않는다.** cmd.exe 코드 페이지 문제로 깨진다. (JS 파일과 README 는 UTF-8 한글 OK)
+9. **사내 서버 주소, 프록시 주소, 계정/비밀번호를 git 에 올라가는 파일에 쓰지 않는다.** 이 저장소는 공개(public)다. PC 별 설정은 `local-env.bat` (git 제외) 에만 쓴다.
 
 ### 써도 되는 것
 
@@ -154,6 +171,9 @@ node scripts\run.js --smoke    & rem 실제 Electron 실행 → 페이지 로드
 ├── dev.bat                   # [Windows] DevTools 열고 실행
 ├── verify.bat                # [Windows] 검사 + 테스트 + 실행 확인
 ├── package.bat               # [Windows] 배포본 + zip 생성
+├── download.bat              # [Windows] 사내 프록시/미러로 Electron 받기 + 설치
+├── local-env.example.bat     # 프록시/미러 설정 예시 → local-env.bat 으로 복사해서 사용
+├── local-env.bat             # (직접 만듦) PC 별 프록시/미러 설정. git 에 안 올라감
 ├── package.json              # 앱 정보 + Electron 버전. deps 는 비워 둔다
 ├── .npmrc                    # offline=true (이 프로젝트에서 npm 이 레지스트리에 접속하지 않게)
 ├── .gitattributes            # .bat/.cmd 는 CRLF, 나머지는 LF
@@ -187,7 +207,8 @@ node scripts\run.js --smoke    & rem 실제 Electron 실행 → 페이지 로드
 
 | bat 파일 | 직접 실행 | npm 스크립트 | 설명 |
 | --- | --- | --- | --- |
-| `setup.bat` | `node scripts\install-offline.js` | `npm run setup` | Electron 런타임 설치 |
+| `setup.bat` | `node scripts\install-offline.js` | `npm run setup` | Electron 런타임 설치 (offline\ 의 zip) |
+| `download.bat` | `node scripts\prepare-offline.js` → `install-offline.js` | | 사내 프록시/미러로 받기 + 설치 |
 | `start.bat` | `node scripts\run.js` | `npm start` | 앱 실행 |
 | `dev.bat` | `node scripts\run.js --dev` | `npm run dev` | DevTools 열고 실행 |
 | `verify.bat` | (아래 3개) | `npm run verify` + `npm run smoke` | 전체 검증 |
@@ -195,7 +216,7 @@ node scripts\run.js --smoke    & rem 실제 Electron 실행 → 페이지 로드
 | | `node --test` | `npm test` | 단위 테스트 |
 | | `node scripts\run.js --smoke` | `npm run smoke` | 로드 + IPC 확인 후 자동 종료 |
 | `package.bat` | `node scripts\package.js --zip` | `npm run package` | 배포본 생성 |
-| (인터넷 PC) | `node scripts\prepare-offline.js` | `npm run prepare-offline` | Electron zip 다운로드 |
+| | `node scripts\prepare-offline.js` | `npm run prepare-offline` | Electron zip 다운로드만 (인터넷 PC 또는 프록시) |
 
 `install-offline.js` 옵션: `--zip=<경로>`, `--arch=arm64`, `--skip-checksum`
 
@@ -469,14 +490,7 @@ node scripts\prepare-offline.js
 
 두 파일을 받고 체크섬까지 확인해서 `offline\` 에 넣어 준다. 기본 대상은 `package.json` 의 `config.offlineTarget` (= `win32-x64`). ARM64 는 `--arch=arm64`.
 
-**사내 미러(Nexus/Artifactory 의 raw/GitHub 프록시)에 Electron 이 있을 때**는 인터넷 PC 없이 받을 수도 있다. 미러가 있는지, 주소가 뭔지는 사내 담당자에게 확인한다:
-
-```bat
-set ELECTRON_MIRROR=https://nexus.example.local/repository/electron/
-node scripts\prepare-offline.js
-```
-
-(미러 URL 형식: `<MIRROR>v44.9.0/electron-v44.9.0-win32-x64.zip`)
+**사내 프록시나 미러를 쓸 수 있을 때**는 반입 없이 폐쇄망 PC 에서 바로 받을 수 있다 → [사내 프록시 / 미러로 직접 받기](#사내-프록시--미러로-직접-받기)
 
 ### Electron 버전 올리기
 
@@ -486,12 +500,112 @@ node scripts\prepare-offline.js
 
 ---
 
+## 사내 프록시 / 미러로 직접 받기
+
+사내 npm 저장소에서 `electron` 패키지 **정보(메타데이터)는 조회되지만 바이너리(zip)는 막혀 있는** 경우가 많다.
+`electron` npm 패키지가 설치 중에 GitHub 에서 zip 을 따로 받기 때문이다. 이때 사내 프록시나 미러를 거치면 받을 수 있다.
+
+### 1) 사내 방식 확인 (담당자에게 물어볼 것)
+
+| 방식 | 생긴 모양 | 설정할 값 |
+| --- | --- | --- |
+| **A. HTTP 프록시 서버** | `http://proxy.회사.local:8080` 같은 주소 | `HTTPS_PROXY` (+ `HTTP_PROXY`, `NO_PROXY`) |
+| **B. 저장소 미러** (Nexus/Artifactory 의 GitHub 릴리스 프록시) | `https://nexus.회사.local/repository/electron/` 같은 주소 | `ELECTRON_MIRROR` (+ 필요하면 `ELECTRON_CUSTOM_DIR`) |
+
+이 변수 이름들은 `electron` npm 패키지가 쓰는 것과 같다. 그래서 사내에서 "electron 설치할 때 이렇게 설정하라"는 안내가 있으면 그 값을 그대로 쓰면 된다.
+
+프록시 주소를 모를 때 이 PC 에서 확인해볼 수 있는 것:
+
+```bat
+npm config get https-proxy
+npm config get proxy
+npm config get registry
+netsh winhttp show proxy
+```
+
+- `npm config get https-proxy` / `proxy` 에 값이 있으면 그게 사내 프록시 주소일 가능성이 높다 (`null` 이면 미설정).
+- `registry` 가 Nexus 주소면, 같은 Nexus 에 Electron 미러(raw proxy)가 있는지 담당자에게 물어본다.
+- 브라우저가 자동 구성 스크립트(PAC)로 프록시를 쓰는 회사는 위 명령에 안 나올 수 있다. PowerShell 에서 실제 프록시 확인:
+  ```powershell
+  [System.Net.WebRequest]::GetSystemWebProxy().GetProxy('https://github.com')
+  ```
+  `github.com` 이 그대로 나오면 프록시를 안 거친다는 뜻이다.
+
+### 2) `local-env.bat` 만들기
+
+`local-env.example.bat` 을 복사해서 `local-env.bat` 으로 이름을 바꾸고, 해당하는 줄의 `rem` 을 지운 뒤 주소를 고친다.
+
+**A. 프록시 서버**
+
+```bat
+set "HTTPS_PROXY=http://proxy.company.local:8080"
+set "HTTP_PROXY=http://proxy.company.local:8080"
+set "NO_PROXY=localhost,127.0.0.1,.company.local"
+```
+
+- 로그인이 필요한 프록시: `http://아이디:비밀번호@proxy.company.local:8080` (비밀번호의 특수문자는 URL 인코딩, bat 파일 안에서는 `%` 를 `%%` 로: `@` → `%%40`)
+- 프록시가 **허용해야 하는 주소**: `github.com`, `release-assets.githubusercontent.com` (GitHub 이 실제 파일을 이 주소로 넘긴다)
+
+**B. 저장소 미러**
+
+```bat
+set "ELECTRON_MIRROR=https://nexus.company.local/repository/electron/"
+```
+
+- 받는 주소는 `<ELECTRON_MIRROR>v44.9.0/electron-v44.9.0-win32-x64.zip` 형식이다.
+- 미러의 폴더 이름이 `v44.9.0` 이 아니라 `44.9.0` 이면 한 줄 더: `set "ELECTRON_CUSTOM_DIR={{ version }}"`
+- `SHASUMS256.txt` 도 같은 폴더에서 받으므로 미러에 같이 있어야 한다.
+
+`local-env.bat` 은 `.gitignore` 에 들어 있어서 **git 에 올라가지 않는다.** 사내 주소가 공개 저장소에 노출되지 않게 하려는 것이다. 영문만 쓴다 (한글 쓰면 cmd 에서 깨짐).
+
+### 3) `download.bat` 실행
+
+1. `local-env.bat` 설정을 읽는다.
+2. `NODE_USE_ENV_PROXY=1` 을 켠다. Node 의 `fetch` 는 기본으로 `HTTPS_PROXY` 를 무시하는데, Node 24 부터 이 값으로 켤 수 있다.
+3. `NODE_USE_SYSTEM_CA=1` 을 켠다 (Node 24.6+). 사내 프록시가 HTTPS 를 검사하면서 쓰는 회사 인증서를 Windows 인증서 저장소에서 신뢰하게 한다.
+4. `node scripts\prepare-offline.js` 로 zip + `SHASUMS256.txt` 를 받고 체크섬을 확인한다 → `offline\` 에 저장.
+5. `node scripts\install-offline.js` 로 `vendor\electron\` 에 설치한다.
+
+끝나면 `verify.bat` → `start.bat`.
+
+cmd 에서 직접 하려면:
+
+```bat
+set HTTPS_PROXY=http://proxy.company.local:8080
+node scripts\prepare-offline.js
+node scripts\install-offline.js
+```
+
+(`prepare-offline.js` 는 `HTTPS_PROXY` 가 있으면 `NODE_USE_ENV_PROXY=1` 을 켜고 자기 자신을 다시 실행하므로, cmd 에서 직접 실행해도 프록시를 탄다.)
+
+### 4) 받기가 실패할 때
+
+`prepare-offline.js` 가 원인별 안내를 출력한다.
+
+| 메시지 | 원인 / 해결 |
+| --- | --- |
+| `원인: ENOTFOUND` / `ECONNREFUSED` / `ETIMEDOUT` | 프록시/미러 주소가 틀렸거나 막힘. `local-env.bat` 주소 확인. 프록시면 GitHub 두 주소가 허용됐는지 담당자에게 확인 |
+| `원인: SELF_SIGNED_CERT_IN_CHAIN` / `UNABLE_TO_GET_ISSUER_CERT_LOCALLY` | 사내 TLS 검사 인증서 문제. 회사 루트 인증서(.pem)를 받아 `local-env.bat` 에 `set "NODE_EXTRA_CA_CERTS=C:\certs\company-root-ca.pem"` |
+| `HTTP 407` | 프록시 로그인 필요. `HTTPS_PROXY=http://아이디:비밀번호@...` |
+| `HTTP 404` (미러) | 미러 폴더 형식이 다름. `ELECTRON_CUSTOM_DIR={{ version }}` 시도, 또는 미러에 44.9.0 이 아직 없음 |
+| `HTTP 403` | 프록시/미러가 이 파일을 차단함. 담당자에게 허용 요청 |
+
+**검증 내역** (Linux 에서 Electron 44.9.0 내장 Node 24 로 테스트함):
+- `HTTPS_PROXY` 만 설정 → 자동으로 다시 실행되면서 프록시 경유 다운로드 성공 (프록시 로그에 `github.com`, `release-assets.githubusercontent.com` 의 CONNECT 기록 확인)
+- `ELECTRON_MIRROR` + `ELECTRON_CUSTOM_DIR={{ version }}` 로 로컬 미러에서 받기 성공
+- 잘못된 미러 주소 → 안내 메시지 출력 확인
+
+실제 사내 프록시 환경(인증, TLS 검사, PAC)에서는 아직 확인하지 않았다.
+
+---
+
 ## 사내 npm 저장소에 대해
 
 폐쇄망 PC 에 npm 11.13.0 이 있고, 사내 npm 저장소(Nexus 등)가 연결돼 있을 수 있다. 그래도 이 프로젝트는 **일부러 npm 패키지를 쓰지 않는다.**
 
 - 사내 저장소에 어떤 패키지/버전이 있는지 보장되지 않는다.
-- `electron` npm 패키지는 설치 중에 **GitHub 에서 바이너리를 다시 내려받으려 해서** 폐쇄망에서 실패한다.
+- `electron` npm 패키지는 메타데이터는 사내 저장소에서 조회되지만, 설치 중에 **GitHub 에서 바이너리를 따로 내려받으려 해서** 막힌다.
+  (`ELECTRON_MIRROR` 를 설정하면 npm 설치도 될 수 있지만, 이 프로젝트는 같은 설정으로 `download.bat` 을 쓰면 되므로 npm 의존성을 만들지 않는다.)
 - 의존성이 0개면 폴더 복사만으로 어느 PC 에서나 똑같이 동작한다.
 
 프로젝트의 `.npmrc` 는 `offline=true` 라서 이 폴더 안에서는 npm 이 레지스트리에 접속하지 않는다. (`npm start`, `npm test` 같은 스크립트 실행은 문제없음)

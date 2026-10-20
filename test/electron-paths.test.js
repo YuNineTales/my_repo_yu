@@ -6,6 +6,7 @@ const path = require('node:path');
 const {
   electronVersion,
   zipName,
+  electronDownloadUrl,
   binaryRelativePath,
   resourcesRelativePath,
   parseArgs,
@@ -25,6 +26,21 @@ test('플랫폼별 실행 파일/리소스 경로', () => {
   assert.equal(binaryRelativePath('darwin'), path.join('Electron.app', 'Contents', 'MacOS', 'Electron'));
   assert.equal(resourcesRelativePath('linux'), 'resources');
   assert.equal(resourcesRelativePath('darwin'), path.join('Electron.app', 'Contents', 'Resources'));
+});
+
+test('다운로드 URL: 기본값, 사내 미러, 버전 폴더 형식', () => {
+  assert.equal(
+    electronDownloadUrl('a.zip', '1.2.3', {}),
+    'https://github.com/electron/electron/releases/download/v1.2.3/a.zip',
+  );
+  assert.equal(
+    electronDownloadUrl('a.zip', '1.2.3', { ELECTRON_MIRROR: 'https://nexus.local/repo/electron' }),
+    'https://nexus.local/repo/electron/v1.2.3/a.zip',
+  );
+  assert.equal(
+    electronDownloadUrl('a.zip', '1.2.3', { ELECTRON_MIRROR: 'https://m.local/electron/', ELECTRON_CUSTOM_DIR: '{{ version }}' }),
+    'https://m.local/electron/1.2.3/a.zip',
+  );
 });
 
 test('인자 파싱', () => {

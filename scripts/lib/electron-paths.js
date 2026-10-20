@@ -26,6 +26,17 @@ function zipName(version, platform = process.platform, arch = process.arch) {
   return `electron-v${version}-${platform}-${arch}.zip`;
 }
 
+const DEFAULT_MIRROR = 'https://github.com/electron/electron/releases/download/';
+
+// Electron 파일 다운로드 URL. electron npm 패키지(@electron/get)와 같은 환경변수 규칙을 따른다.
+//   <ELECTRON_MIRROR><ELECTRON_CUSTOM_DIR>/<파일>   (CUSTOM_DIR 기본값: v{{ version }})
+function electronDownloadUrl(file, version, env = process.env) {
+  let mirror = env.ELECTRON_MIRROR || DEFAULT_MIRROR;
+  if (!mirror.endsWith('/')) mirror += '/';
+  const dir = (env.ELECTRON_CUSTOM_DIR || 'v{{ version }}').replace(/\{\{\s*version\s*\}\}/g, version);
+  return `${mirror}${dir}/${file}`;
+}
+
 // 압축을 푼 Electron 배포본 폴더 안에서 실행 파일의 상대 경로.
 function binaryRelativePath(platform = process.platform) {
   switch (platform) {
@@ -62,6 +73,7 @@ module.exports = {
   readPackageJson,
   electronVersion,
   zipName,
+  electronDownloadUrl,
   binaryRelativePath,
   resourcesRelativePath,
   parseArgs,

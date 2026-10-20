@@ -38,7 +38,10 @@ test('renderer HTML 은 외부 URL 리소스를 참조하지 않는다', () => {
 
 test('.bat / .cmd 파일은 ASCII 만 쓴다 (cmd.exe 코드 페이지 문제 방지)', () => {
   const files = [
-    ...fs.readdirSync(ROOT).filter((f) => /\.(bat|cmd)$/i.test(f)).map((f) => path.join(ROOT, f)),
+    ...fs
+      .readdirSync(ROOT)
+      .filter((f) => /\.(bat|cmd)$/i.test(f) && f !== 'local-env.bat') // local-env.bat 은 git 에 안 올라가는 개인 설정
+      .map((f) => path.join(ROOT, f)),
     ...fs.readdirSync(path.join(ROOT, 'scripts', 'win')).map((f) => path.join(ROOT, 'scripts', 'win', f)),
   ];
   assert.ok(files.length > 0);

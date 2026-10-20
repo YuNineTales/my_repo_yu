@@ -7,3 +7,6 @@ offline/*
 *.log
 .DS_Store
 Thumbs.db
+
+# 사내 프록시/미러 주소 등 PC 별 설정 (커밋 금지)
+local-env.bat
