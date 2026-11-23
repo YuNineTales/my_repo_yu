@@ -11,11 +11,13 @@
 | npm (폐쇄망 PC) | 11.13.0 설치됨. 사내 저장소에서 패키지 메타데이터는 조회되지만 Electron 바이너리는 막혀 있음. **이 프로젝트는 npm install 이 필요 없다** |
 | Electron 받는 법 | (A) 인터넷 PC 에서 받아 반입 또는 (B) 사내 프록시/미러로 폐쇄망 PC 에서 직접 받기 (`download.bat`) |
 | 외부 의존성 | 없음 (`dependencies`, `devDependencies` 비어 있음) |
+| 위치 | `my_repo_yu` 저장소의 `electron-offline-starter\` 폴더. **이 폴더만 통째로 옮기면 독립적으로 동작한다** (상위 폴더의 파일을 쓰지 않음) |
 
 > **이 문서를 읽는 로컬 LLM(AI 코딩 도우미)에게**
 > 먼저 [LLM 작업 규칙](#llm-작업-규칙-반드시-지킬-것)을 읽고 그대로 따를 것.
 > 핵심: **인터넷이 없는 Windows 환경이다. npm install, CDN, 외부 패키지를 쓰지 않는다.**
 > 명령 예시는 **Windows cmd / PowerShell** 기준으로 쓴다 (경로 구분자 `\`).
+> 모든 명령과 경로는 **이 프로젝트 폴더(`electron-offline-starter\`)를 기준**으로 한다. 이 폴더 밖의 파일을 만들거나 고치지 않는다.
 
 ---
 
@@ -56,7 +58,7 @@ Electron 런타임(약 120MB)을 받는 방법이 두 가지다. 사내 프록�
 - https://github.com/electron/electron/releases/download/v44.9.0/electron-v44.9.0-win32-x64.zip (약 120MB)
 - https://github.com/electron/electron/releases/download/v44.9.0/SHASUMS256.txt
 
-인터넷 PC 에 Node 가 있으면 저장소 폴더에서 `node scripts\prepare-offline.js` 한 줄로 받아도 된다 (체크섬 확인 + `offline\` 저장까지 자동).
+인터넷 PC 에 Node 가 있으면 이 프로젝트 폴더에서 `node scripts\prepare-offline.js` 한 줄로 받아도 된다 (체크섬 확인 + `offline\` 저장까지 자동).
 자세한 내용(ARM64 PC, 체크섬 수동 확인, 반입 시 주의점)은 [폐쇄망 반입 파일](#폐쇄망-반입-파일) 참고.
 
 #### 2) 프로젝트 폴더 + 받은 파일을 폐쇄망 PC 로 옮기기
@@ -421,7 +423,7 @@ dist\electron-offline-starter-win32-x64.zip
 
 - 받는 사람은 zip 을 풀고 `.exe` 를 실행하면 된다. 설치 과정 없음.
 - 실행 파일 이름은 `package.json` 의 `name` 을 따른다.
-- 최상위 폴더(예: `assets\`)를 새로 만들면 `scripts\package.js` 의 `APP_FILES` 에 추가한다.
+- 프로젝트 폴더 바로 아래에 새 폴더(예: `assets\`)를 만들면 `scripts\package.js` 의 `APP_FILES` 에 추가한다.
 - 지원 안 함 (외부 도구 필요): exe 아이콘/버전 정보 변경(rcedit), asar 묶기, 설치 프로그램(NSIS/MSI), 코드 서명, 자동 업데이트.
 
 ---
@@ -482,7 +484,7 @@ certutil -hashfile offline\electron-v44.9.0-win32-x64.zip SHA256
 
 ### 다른 방법
 
-**인터넷 PC 에 Node 가 있을 때** (저장소 폴더에서):
+**인터넷 PC 에 Node 가 있을 때** (이 프로젝트 폴더에서):
 
 ```bat
 node scripts\prepare-offline.js
