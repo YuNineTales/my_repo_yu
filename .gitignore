@@ -1,0 +1,4 @@
+# 저장소 공통 (프로젝트별 규칙은 각 폴더의 .gitignore)
+.DS_Store
+Thumbs.db
+desktop.ini
