@@ -1,12 +1,12 @@
 # my_repo_yu
 
-여러 개의 작은 프로젝트를 모아 두는 저장소. 필요한 프로젝트 **폴더 하나를 통째로** 회사(폐쇄망) PC 로 옮겨서 쓴다.
+개인 저장소. 작은 프로젝트들을 폴더 단위로 모아 둔다.
 
 ## 프로젝트 목록
 
 | 폴더 | 설명 | 대상 환경 |
 | --- | --- | --- |
-| [`electron-offline-starter/`](electron-offline-starter/) | npm 없이 개발·실행·패키징하는 Electron 기본 구성 + 로컬 LLM 용 README | 폐쇄망 Windows (Node 24) |
+| [`electron-offline-starter/`](electron-offline-starter/) | npm 없이 개발·실행·패키징하는 Electron 기본 구성 + 로컬 LLM 용 README | 오프라인 Windows (Node 24) |
 
 ## 규칙
 
@@ -16,10 +16,10 @@
    - 폴더 이름은 영문 소문자 + 하이픈 (`my-tool`, `log-viewer` 등).
 2. **커밋도 프로젝트 단위로.** 한 커밋에 여러 프로젝트를 섞지 않는다. 커밋 메시지 앞에 폴더 이름을 붙인다.
    ```
-   electron-offline-starter: 사내 프록시 다운로드 지원
+   electron-offline-starter: 프록시 다운로드 지원
    log-viewer: 첫 구성
    ```
-3. **사내 정보는 올리지 않는다.** 이 저장소는 **public** 이다. 사내 서버/프록시 주소, 계정, 사내 코드·데이터는 git 에 올라가는 파일에 쓰지 않는다 (각 프로젝트의 git 제외 설정 파일 사용).
+3. **민감한 정보는 올리지 않는다.** 이 저장소는 **public** 이다. 서버/프록시 주소, 계정, 비공개 코드·데이터는 git 에 올라가는 파일에 쓰지 않는다 (각 프로젝트의 git 제외 설정 파일 사용).
 4. 새 프로젝트를 만들면 위 **프로젝트 목록** 표에 한 줄 추가한다.
 
 ## 프로젝트 하나만 가져가기
